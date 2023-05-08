@@ -1,3 +1,4 @@
+[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/72l8TFi6)
 # ECE 208 Homework 5: Profile Hidden Markov Model (HMM)
 
 In this problem set, you will work with the profile HMM. You will be given profile HMM models and will write code to implement the Viterbi and Forward algorithms. We have built a Python class ```HMM``` (see [HMM.py](HMM.py)) to represent a profile HMM which contains all the required parameters (i.e. the alphabet and the emission and transition proabilities). In addition, the methods and scripts to load the model from file and input/output routines are all provided. You should first read [HW5_supportive_info.pdf](HW5_supportive_info.pdf) for detailed descriptions about the ```HMM``` class and its usage.
