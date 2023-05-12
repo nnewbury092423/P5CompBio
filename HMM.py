@@ -1,5 +1,5 @@
 from math import *
-
+import numpy as np
 INF = float("inf")
 
 def log_sum_exp(numlist):
@@ -127,19 +127,167 @@ class HMM:
     def Viterbi(self,query):
         # implement the Viterbi algorithm to find the most probable path of a query sequence and its likelihood
         # return the log-likelihood and the path. If the likelihood is 0, return "$" as the path 
+        
         n = len(query)
         m = self.nstate
         
+
+
         VM = [[float("-inf") for j in range(m+2)] for i in range(n+1)]
         VI = [[float("-inf") for j in range(m+2)] for i in range(n+1)]
         VD = [[float("-inf") for j in range(m+2)] for i in range(n+1)]
+        arrows = [[float("-inf") for j in range(m+2)] for i in range(n+1)]
         
         Vscore = -INF
-        aln = "$"
-       
-        # YOUR CODE HERE
+        aln = ""
         
-        Vscore = VM[n][m+1]
+        
+        
+        #import pdb; pdb.set_trace()
+        # YOUR CODE HERE
+
+
+
+
+
+        #for i in range(m):
+        # first state first observations probability of 1
+        VM[0][0] = 0
+
+
+        # if statements
+        #n and i have to do with queries
+        # j and m have to do with states        
+        #second one longer
+
+        # each state I want to know where I came from
+        arrowM = [[float("-inf") for j in range(m+2)] for i in range(n+1)]
+        arrowI = [[float("-inf") for j in range(m+2)] for i in range(n+1)]
+        arrowD = [[float("-inf") for j in range(m+2)] for i in range(n+1)]
+
+        for i in range(1,n+1):
+            # 0 , 1 
+            #import pdb; pdb.set_trace()
+            for j in range(m+1):
+                # 0, 1, 2
+                #import pdb; pdb.set_trace()
+                #print('beep')
+                if i>= 1 and j>=1:
+                    option = [VM[i-1][j-1] + self.t[j-1]['MM'], VI[i-1][j-1] + self.t[j-1]['IM'], VD[i-1][j-1]  + self.t[j-1]['DM']]
+                    VM[i][j] = self.eM[j][query[i-1]] + max(option)
+                    arrowM[i][j] = max(enumerate(option), key=lambda x: x[1])[0]
+                
+                if i>=1:
+                    option = [VM[i-1][j] + self.t[j]['MI'], VI[i-1][j] + self.t[j]['II'], VD[i-1][j] + self.t[j]['DI']]
+                    VI[i][j] = self.eI[j][query[i-1]] + max(option)
+                    arrowI[i][j] = max(enumerate(option), key=lambda x: x[1])[0]
+                if j>=1:
+                    option = [VM[i][j-1] + self.t[j-1]['MD'], VI[i][j-1] + self.t[j-1]['ID'], VD[i][j-1] + self.t[j-1]['DD']]
+                    VD[i][j] = max( option)
+                    arrowD[i][j] = max(enumerate(option), key=lambda x: x[1])[0]
+                    #option = [max(VM[i][j]),max(VI[i][j]),max(VD[i][j])]
+                # Make some arrow array here
+
+                #import pdb; pdb.set_trace()
+                #import pdb; pdb.set_trace()
+        # some backtracking
+                
+
+            #option = [blosum + S[i-1][j-1][0], S[i-1][j][0] + gap*len(L2)*len(L1), S[i][j-1][0] + gap*len(L2)*len(L1)]  
+                #max_index = max(enumerate(option), key=lambda x: x[1])[0]
+        # reverse through the states
+        #import pdb; pdb.set_trace()``
+        
+        # at VM
+        # where did it come from? 
+        #arrowM[i][j] (1,2,3)
+        option = [VM[n][m] + self.t[m]['MM'],VI[n][m]+ self.t[m]['IM'],VD[n][m] + self.t[m]['DM']]
+        VM[n][m+1] = max(option)
+        arrow  = max(enumerate(option), key=lambda x: x[1])[0]
+        arrow1 = arrow
+        #import pdb; pdb.set_trace()
+        aln = ""
+
+        i = n
+        j = m
+        if arrow == 0:
+            aln= aln + query[i-1]
+            arrow = arrowM[i][j]
+            
+        elif arrow == 1:
+            aln= aln + query[i-1].lower()
+            arrow = arrowI[i][j]
+        elif arrow == 2:
+            arrow = arrowD[i][j]
+            aln= aln + "-"
+        
+
+        #import pdb; pdb.set_trace()
+        while not arrow== -INF:
+            #import pdb; pdb.set_trace()
+            if arrow == 0:
+                j = j-1
+                i = i-1
+                if i>=0:
+                    try:
+                        if not arrow1 == 1: 
+                            aln = aln + query[i-1]
+                        elif not i==0:
+                            aln = aln + query[i-1]
+                    except:
+                        pass
+                #import pdb; pdb.set_trace()
+                arrow = arrowM[i][j]
+            elif arrow == 1:
+                i = i-1
+                if i>=0:
+                    try:
+                        aln= aln + query[i-1].lower()
+                    except:
+                        pass
+                arrow = arrowI[i][j]
+                #import pdb; pdb.set_trace()
+            elif arrow ==2:
+                j = j-1
+                aln = aln + "-"
+                arrow = arrowD[i][j]
+        
+        # take off final match witch represents begining 
+
+
+
+        #import pdb; pdb.set_trace()
+        #max_index = max(enumerate(option), key=lambda x: x[1])[0]
+
+       # i = n-1
+        #for letter in reversed(range(1,n+1)):
+         #   option = [max(VM[j]),max(VI[j]),max(VD[j])]
+          #  max_index = max(enumerate(option), key=lambda x: x[1])[0]
+           #
+            #if max_index == 0:
+             #   aln = aln + query[i]
+              #  i = i-1
+            #if max_index == 1:
+             #   aln = aln + query[i].lower()    
+             #   i = i-1
+           # if max_index == 2:
+            #    aln = aln + "-"
+                
+
+
+        #VM[n][m+1] = max(VD[n][m] + self.t[m]['DM'],VM[n][m] + self.t[m]['MM'],VI[n][m]+ self.t[m]['IM'])
+        #import pdb; pdb.set_trace()
+
+
+        Vscore = VM[n][m +1]
+        if Vscore == -INF:
+            aln= '$'
+        elif arrow1 ==0:
+            aln = aln[::-1]
+            aln = aln[1:]
+        else:
+            aln = aln[::-1]
+        import pdb; pdb.set_trace()
         return Vscore,aln        
 
 
@@ -152,8 +300,42 @@ class HMM:
         FI = [[float("-inf") for j in range(m+2)] for i in range(n+1)]
         FD = [[float("-inf") for j in range(m+2)] for i in range(n+1)]
         
-        # YOUR CODE HERE!
+        FM[0][0] = 0
+        for i in range(1,n+1):
+            # 0 , 1 
+            #import pdb; pdb.set_trace()
+            for j in range(m+1):
+                # 0, 1, 2
+                #import pdb; pdb.set_trace()
+                #print('beep')
+                if i>= 1 and j>=1:
+                    #import pdb; pdb.set_trace()
+                    try:
+                        FM[i][j] = self.eM[j][query[i-1]] + log(exp(FM[i-1][j-1] + self.t[j-1]['MM']) + exp(FI[i-1][j-1] + self.t[j-1]['IM']) +  exp(FD[i-1][j-1] + self.t[j-1]['DM']))
+                    except:
+                        FM[i][j] = -INF
+                if i>=1:
+                    try:
+                        FI[i][j] = self.eI[j][query[i-1]] + log(exp(FM[i-1][j] +self.t[j]['MI']) + exp(FI[i-1][j] + self.t[j]['II']) + exp(FD[i-1][j] + self.t[j]['DI']))
+                    except:
+                        FI[i][j] = -INF
+                
+                if j>=1:
+                    try:
+                        FD[i][j] = log(exp(FM[i][j-1] + self.t[j-1]['MD']) + exp(FI[i][j-1] + self.t[j-1]['ID']) + exp(FD[i][j-1] + self.t[j-1]['DD']))
+                    except:
+                        FD[i][j] = -INF
+                #import pdb; pdb.set_trace()
+                #import pdb; pdb.set_trace()
+        # some backtracking
 
-        Fscore = FM[n][m+1]        
+        #import pdb; pdb.set_trace()
+        # YOUR CODE HERE!
+        try:
+            FM[n][m+1] = log(exp(FD[n][m] +self.t[m]['DM']) +exp(FM[n][m] +self.t[m]['MM']) + exp(FI[n][m] + self.t[m]['IM']))
+        except:
+            FM[n][m+1] = -INF
+        Fscore = FM[n][m+1] 
+        #import pdb; pdb.set_trace()       
         return Fscore
     
