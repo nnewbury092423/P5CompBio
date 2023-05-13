@@ -178,9 +178,13 @@ class HMM:
                     arrowM[i][j] = max(enumerate(option), key=lambda x: x[1])[0]
                 
                 if i>=1:
-                    option = [VM[i-1][j] + self.t[j]['MI'], VI[i-1][j] + self.t[j]['II'], VD[i-1][j] + self.t[j]['DI']]
-                    VI[i][j] = self.eI[j][query[i-1]] + max(option)
-                    arrowI[i][j] = max(enumerate(option), key=lambda x: x[1])[0]
+                    try:
+                        option = [VM[i-1][j] + self.t[j]['MI'], VI[i-1][j] + self.t[j]['II'], VD[i-1][j] + self.t[j]['DI']]
+                        VI[i][j] = self.eI[j][query[i-1]] + max(option)
+                        arrowI[i][j] = max(enumerate(option), key=lambda x: x[1])[0]
+                    except:
+                        pass
+
                 if j>=1:
                     option = [VM[i][j-1] + self.t[j-1]['MD'], VI[i][j-1] + self.t[j-1]['ID'], VD[i][j-1] + self.t[j-1]['DD']]
                     VD[i][j] = max( option)
@@ -192,18 +196,19 @@ class HMM:
                 #import pdb; pdb.set_trace()
         # some backtracking
                 
-
-            #option = [blosum + S[i-1][j-1][0], S[i-1][j][0] + gap*len(L2)*len(L1), S[i][j-1][0] + gap*len(L2)*len(L1)]  
-                #max_index = max(enumerate(option), key=lambda x: x[1])[0]
         # reverse through the states
         #import pdb; pdb.set_trace()``
         
         # at VM
         # where did it come from? 
         #arrowM[i][j] (1,2,3)
-        option = [VM[n][m] + self.t[m]['MM'],VI[n][m]+ self.t[m]['IM'],VD[n][m] + self.t[m]['DM']]
-        VM[n][m+1] = max(option)
-        arrow  = max(enumerate(option), key=lambda x: x[1])[0]
+        arrow = 0
+        try:
+            option = [VM[n][m] + self.t[m]['MM'],VI[n][m]+ self.t[m]['IM'],VD[n][m] + self.t[m]['DM']]
+            VM[n][m+1] = max(option)
+            arrow  = max(enumerate(option), key=lambda x: x[1])[0]
+        except:
+            pass
         arrow1 = arrow
         #import pdb; pdb.set_trace()
         aln = ""
@@ -287,7 +292,7 @@ class HMM:
             aln = aln[1:]
         else:
             aln = aln[::-1]
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         return Vscore,aln        
 
 
